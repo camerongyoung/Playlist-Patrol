@@ -55,6 +55,20 @@ public:
         heapify_up(index);
     }
 
+    string top()
+    {
+        if (size() != 0)
+        {
+            return arr[0].first;
+        }
+
+    }
+
+    string at(int i)
+    {
+        return arr[i].first;
+    }
+
 
 };
 class Node {
