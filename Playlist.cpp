@@ -2,6 +2,7 @@
 #include <map>
 #include <random>
 #include <ctime>
+#include <queue>
 #include <vector>
 #include <fstream>
 #include <string>
