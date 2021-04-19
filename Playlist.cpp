@@ -508,11 +508,61 @@ void applyScores(map<string, Songs> songs, map<string, int> scores, string chose
     }
 }
 
+void MakeHeap(map<string, int>& scores, MaxHeap& mh)
+{
+    
+    map<string, int>::iterator it;
+    for (it = scores.begin(); it != scores.end(); it++)
+    {
+        mh.push(make_pair(it->first, it->second));
+    }
+}
+void TopSongs(MaxHeap& mh, map<string, Songs>& songs, int listSize)
+{
+    map<string, Songs>::iterator it;
+    queue<pair<string,Songs>> q;
+    string top = mh.top();
+    int left;
+    int right;
+    int index = 0;
+    it = songs.find(top);
+    q.push(make_pair(it->first, it->second));
+    pair<string, Songs> currentSong = q.front();
+    int i = 1;
+    while (!q.empty() || i != listSize)
+    {
+        q.pop();
+        cout << currentSong.first << endl;
+        currentSong = q.front();
+        
+        i++;
+        left = 2 * index + 1;
+        it = songs.find(mh.at(left));
+        q.push(make_pair(it->first, it->second));
+        
+        i++;
+        right = 2 * index + 2;
+        it = songs.find(mh.at(right));
+        q.push(make_pair(it->first, it->second));
+
+        
+    }
+        
+
+          
+    
+    
+
+}
+
 int main()
 {
+    MaxHeap mh;
     string filePath;
     filePath = "data.csv";
     string chosenSong;
+    int listSize = 10;
+    
     map<string, Songs> songs;
     map<string, int> scores;
     int number;
@@ -558,6 +608,7 @@ int main()
 
     GetCSVData(filePath, songs, scores);
     applyScores(songs, scores, chosenSong);
-
+    MakeHeap(scores, mh);
+    TopSongs(mh, songs, listSize);
 
 }
