@@ -20,7 +20,7 @@ private:
         return (i - 1 / 2);
     }
 
-    int Left(int i) 
+    int Left(int i)
     {
         return (2 * i + 1);
     }
@@ -39,7 +39,7 @@ private:
             heapify_up(Parent(i));
         }
     }
-    
+
 public:
 
     unsigned int size()
@@ -57,14 +57,124 @@ public:
 
 
 };
+class Node {
+public:
+    int score;
+
+    Node *left;
+    Node *right;
+
+    Node(){
+        score = 0;
+        left = NULL;
+        right = NULL;
+    };
+    Node(int _score){
+        score = _score;
+        left = NULL;
+        right = NULL;
+    };
+    Node(int _score, Node* _left, Node* _right){
+        score = _score;
+        left = _left;
+        right = _right;
+    };
+};
+
+class Tree {
+private:
+    int index = 0;
+public:
+    Node* insert(Node* root, int score);
+    Node* successor(Node* root);
+    Node* deleteScore(Node* root, int score);
+    Node* findMaxScore(Node* root);
+};
+
+Node* Tree::insert(Node* root, int score) {
+
+    if(root == NULL){
+        return new Node(score);
+    }
+
+    if(score < root->score){
+        root->left = insert(root->left, score);
+    }
+    else{
+        root->right = insert(root->right, score);
+    }
+
+    return root;
+}
+
+Node* Tree::successor(Node* root) {
+    if(root==NULL){
+        return NULL;
+    }
+    Node* node = root;
+    while(node->left != NULL){
+        node = node->left;
+    }
+    return node;
+}
+
+Node* Tree::deleteScore(Node* root, int score) {
+    if(root == NULL){
+        return root;
+    }
+
+    if(score < root->score ){
+        root->left = deleteScore(root->left, score);
+    }
+
+    else if(score > root->score){
+        root->right = deleteScore(root->right, score);
+    }
+
+    else{
+        if(root->left == NULL && root->right == NULL) {
+            Node* node = nullptr;
+            return node;
+        }
+        if(root->left == NULL){
+            Node* node = root->right;
+            delete root;
+            return node;
+        }
+        if(root->right == NULL){
+            Node* node = root->left;
+            delete root;
+            return node;
+        }
+        Node* temp = successor(root->right);
+        root->score = temp->score;
+        root->right = deleteScore(root->right, temp->score);
+    }
+    return root;
+}
+
+Node* Tree::findMaxScore(Node* root){
+
+    if(root == NULL){
+        return NULL;
+    }
+    else{
+        findMaxScore(root->right);
+        if(index++ < 10){
+            cout << root->score << " ";
+        }
+        findMaxScore(root->left);
+    }
+}
+
 class Songs
 {
 public:
     Songs();
     Songs(
-        float& _acousticness, string& _artist, float& _dancability, int& _duration , float& _energy, int& _explct, 
-        string& _id, float instrumentalness, int& _key, float& _liveness, float& _loudness, int& _mode, /*string& _name*/ 
-        int& _popularity, string release_date, float& _speechiness, float& _tempo, float& _valence, int& _year);
+            float& _acousticness, string& _artist, float& _dancability, int& _duration , float& _energy, int& _explct,
+            string& _id, float instrumentalness, int& _key, float& _liveness, float& _loudness, int& _mode, /*string& _name*/
+            int& _popularity, string release_date, float& _speechiness, float& _tempo, float& _valence, int& _year);
     float GetAcousticness();
     string GetArtist();
     float GetDancability();
@@ -130,9 +240,9 @@ Songs::Songs()
     year = 0;
 }
 Songs::Songs(
-    float& _acousticness, string& _artist, float& _dancability, int& _duration, float& _energy, int& _explct,
-    string& _id, float _instrumentalness, int& _key, float& _liveness, float& _loudness, int& _mode, /*string& _name*/
-    int& _popularity, string _release_date, float& _speechiness, float& _tempo, float& _valence, int& _year)
+        float& _acousticness, string& _artist, float& _dancability, int& _duration, float& _energy, int& _explct,
+        string& _id, float _instrumentalness, int& _key, float& _liveness, float& _loudness, int& _mode, /*string& _name*/
+        int& _popularity, string _release_date, float& _speechiness, float& _tempo, float& _valence, int& _year)
 {
     acousticness = _acousticness;
     artist = _artist;
@@ -300,7 +410,7 @@ void GetCSVData(string& filePath, map<string, Songs>& songs, map<string, int>& s
             getline(stream, tempTempo, ',');
             getline(stream, tempValence, ',');
             getline(stream, tempYear, ',');
-            
+
 
 
             if (i != 0)
@@ -322,14 +432,14 @@ void GetCSVData(string& filePath, map<string, Songs>& songs, map<string, int>& s
                 year = stoi(tempYear);
 
                 Songs s(
-                    acousticness, artist, dancability, duration, energy, explct, id, instrumentalness, key, liveness, 
-                    loudness, mode, popularity, release_date, speechiness, tempo, valence, year);
+                        acousticness, artist, dancability, duration, energy, explct, id, instrumentalness, key, liveness,
+                        loudness, mode, popularity, release_date, speechiness, tempo, valence, year);
 
                 songs.emplace(name, s);
                 scores.emplace(name, 0);
             }
 
-            
+
         }
     }
     else
@@ -365,7 +475,7 @@ void applyScores(map<string, Songs> songs, map<string, int> scores, string chose
 
         if (it->second.GetExplct() == songIt->second.GetExplct())
             scoresIt->second = scoresIt->second + 1;
-        
+
         if (it->second.GetInstrumentalness() - songIt->second.GetInstrumentalness() < .01)
             scoresIt->second = scoresIt->second + 1;
 
@@ -405,11 +515,49 @@ int main()
     string chosenSong;
     map<string, Songs> songs;
     map<string, int> scores;
-    
-    
+    int number;
+
+
+    cout << "Enter number 1-10 for example playlist" << endl;
+    cin >> number;
+
+    switch(number){
+        case 1:
+            chosenSong = "Keep A Song In Your Soul";
+            break;
+        case 2:
+            chosenSong = "I Put A Spell On You";
+            break;
+        case 3:
+            chosenSong = "#NOHOOK";
+            break;
+        case 4:
+            chosenSong = "Chicago Breakdown";
+            break;
+        case 5:
+            chosenSong = "90210 (feat. Kacy Hill)";
+            break;
+        case 6:
+            chosenSong = "Devil Town";
+            break;
+        case 7:
+            chosenSong = "Fire on the Mountain - Live at Soldier Field, Chicago, IL 7/3/2015";
+            break;
+        case 8:
+            chosenSong = "Trouble";
+            break;
+        case 9:
+            chosenSong = "Ease My Mind";
+            break;
+        case 10:
+            chosenSong = "Best Friend";
+            break;
+    }
+
+
+
     GetCSVData(filePath, songs, scores);
     applyScores(songs, scores, chosenSong);
-    
+
 
 }
-
