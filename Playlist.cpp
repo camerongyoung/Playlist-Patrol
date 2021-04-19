@@ -59,7 +59,7 @@ public:
 
         int index = size() - 1;
 
-heapify_up(index);
+        heapify_up(index);
     }
 
     string top()
@@ -114,8 +114,25 @@ public:
     Node* successor(Node* root);
     Node* deleteScore(Node* root, int score);
     Node* findMaxScore(Node* root);
+    int balanceFactor(Node* root);
+    int findHeight(Node* root);
+    Node* balanceTree(Node* root);
+    Node* rotateLeft(Node* root);
+    Node* rotateRight(Node* root);
+    Node* rotateLeftRight(Node* root);
+    Node* rotateRightLeft(Node* root);
+    bool isAVL(Node* root);
+    int size(Node* root);
+
 };
 
+int Tree::size(Node* root)
+{
+    if (root == NULL)
+        return 0;
+    else
+        return(size(root->left) + 1 + size(root->right));
+}
 Node* Tree::insert(Node* root, int score, string name) {
 
     if (root == NULL) {
@@ -186,10 +203,95 @@ Node* Tree::findMaxScore(Node* root) {
     else {
         findMaxScore(root->right);
         if (index++ < 10) {
-            cout << root->name << " " << root->score << endl;
+            cout << root->score << " ";
         }
         findMaxScore(root->left);
     }
+}
+
+int Tree::balanceFactor(Node* root) {
+    int leftHeight = findHeight(root->left);
+    int rightHeight = findHeight(root->right);
+    int balanceFactor = leftHeight - rightHeight;
+
+    return balanceFactor;
+
+}
+
+int Tree::findHeight(Node* root) {
+    //return 0 if there are no nodes
+    if (root == NULL)
+        return 0;
+
+    if (findHeight(root->left) >= findHeight(root->right)) {
+        return findHeight(root->left) + 1;
+    }
+    else {
+        return findHeight(root->right) + 1;
+    }
+
+}
+
+Node* Tree::balanceTree(Node* root) {
+    int BF = balanceFactor(root);
+
+    if (BF > 1) {
+        if (balanceFactor(root->left) > 0) {
+            root = rotateRight(root);
+        }
+        else {
+            root = rotateLeftRight(root);
+        }
+    }
+    else if (BF < -1) {
+        if (balanceFactor(root->right) > 0) {
+            root = rotateRightLeft(root);
+        }
+        else {
+            root = rotateLeft(root);
+        }
+    }
+    return root;
+
+}
+Node* Tree::rotateLeft(Node* root) {
+    Node* temp = root->right;
+    root->right = temp->left;
+    temp->left = root;
+
+    return temp;
+}
+Node* Tree::rotateRight(Node* root) {
+    Node* temp = root->left;
+    root->left = temp->right;
+    temp->right = root;
+
+    return temp;
+}
+Node* Tree::rotateLeftRight(Node* root) {
+    Node* temp = root->left;
+    root->left = rotateLeft(temp);
+    return rotateRight(root);
+}
+Node* Tree::rotateRightLeft(Node* root) {
+    Node* temp = root->right;
+    root->right = rotateRight(temp);
+    return rotateLeft(root);
+}
+bool Tree::isAVL(Node* root) {
+    int leftHeight;
+    int rightHeight;
+    if (root == NULL) {
+        return true;
+    }
+
+    leftHeight = findHeight(root->left);
+    rightHeight = findHeight(root->right);
+
+    if (abs(leftHeight - rightHeight) <= 1 && isAVL(root->left) && isAVL(root->right)) {
+        return true;
+    }
+    return false;
 }
 
 class Songs
@@ -485,7 +587,7 @@ void applyScores(map<string, Songs>& songs, map<string, int>& scores, string cho
     map<string, Songs>::iterator it;
 
     songIt = songs.find(chosenSong);
-    
+
 
     for (it = songs.begin(); it != songs.end(); it++)
     {
@@ -556,18 +658,18 @@ vector<pair<string, Songs>> TopSongs(MaxHeap& mh, map<string, Songs>& songs, int
     vector<pair<string, Songs>> playlist;
     string top = mh.top();
     int i = 1;
-    
-    
-   
+
+
+
     //q.push(make_pair(it->first, it->second));
     //pair<string, Songs> currentSong = q.front();
-    
-    while ( i < listSize + 1)
+
+    while (i < listSize + 1)
     {
         //q.pop();
         //cout << currentSong.first << endl;
         //currentSong = q.front();
-        
+
         it = songs.find(mh.at(i));
         i++;
         playlist.push_back(make_pair(it->first, it->second));
@@ -577,9 +679,9 @@ vector<pair<string, Songs>> TopSongs(MaxHeap& mh, map<string, Songs>& songs, int
         it = songs.find(mh.at(i));
         i++;
         playlist.push_back(make_pair(it->first, it->second));
-        
+
         //cout << it->first << endl;
-        
+
 
 
     }
@@ -596,11 +698,14 @@ void insertScoresInTree(Node* root, Tree tree, map<string, int> scores)
 
     for (it = scores.begin(); it != scores.end(); it++)
     {
-        root = tree.insert(root, it->second, it->first );
+        cout << "Size: " << tree.size(root) << endl;
+        root = tree.insert(root, it->second, it->first);
+        tree.balanceTree(root);
+        
     }
 
 
-    
+
 }
 
 
@@ -659,8 +764,8 @@ int main()
 
     GetCSVData(filePath, songs, scores);
     applyScores(songs, scores, chosenSong);
-    MakeHeap(scores, mh);
-    vector<pair<string, Songs>> playlist = TopSongs(mh, songs, listSize);
+    //MakeHeap(scores, mh);
+    //vector<pair<string, Songs>> playlist = TopSongs(mh, songs, listSize);
     insertScoresInTree(root, tree, scores);
     tree.findMaxScore(root);
 
