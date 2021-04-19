@@ -2,8 +2,8 @@
 #include <map>
 #include <random>
 #include <ctime>
-#include <queue>
 #include <vector>
+#include <queue>
 #include <fstream>
 #include <string>
 #include <sstream>
@@ -18,7 +18,10 @@ private:
 
     int Parent(int i)
     {
-        return (i - 1 / 2);
+        //cout << i << endl;
+        int nI = (i - 1) / 2;
+        //cout << nI << endl;
+        return nI;
     }
 
     int Left(int i)
@@ -33,11 +36,13 @@ private:
 
     void heapify_up(int i)
     {
-        if (i && arr[Parent(i)].second < arr[i].second)
+        int p = Parent(i);
+        //cout << p << endl;
+        if (arr[p].second < arr[i].second)
         {
-            swap(arr[i], arr[Parent(i)]);
+            swap(arr[i], arr[p]);
 
-            heapify_up(Parent(i));
+            heapify_up(p);
         }
     }
 
@@ -53,7 +58,8 @@ public:
         arr.push_back(scorePair);
 
         int index = size() - 1;
-        heapify_up(index);
+
+heapify_up(index);
     }
 
     string top()
@@ -75,21 +81,25 @@ public:
 class Node {
 public:
     int score;
+    string name;
 
-    Node *left;
-    Node *right;
+    Node* left;
+    Node* right;
 
-    Node(){
+    Node() {
+        name = "";
         score = 0;
         left = NULL;
         right = NULL;
     };
-    Node(int _score){
+    Node(int _score, string _name) {
+        name = _name;
         score = _score;
         left = NULL;
         right = NULL;
     };
-    Node(int _score, Node* _left, Node* _right){
+    Node(int _score, string _name, Node* _left, Node* _right) {
+        name = _name;
         score = _score;
         left = _left;
         right = _right;
@@ -100,63 +110,63 @@ class Tree {
 private:
     int index = 0;
 public:
-    Node* insert(Node* root, int score);
+    Node* insert(Node* root, int score, string name);
     Node* successor(Node* root);
     Node* deleteScore(Node* root, int score);
     Node* findMaxScore(Node* root);
 };
 
-Node* Tree::insert(Node* root, int score) {
+Node* Tree::insert(Node* root, int score, string name) {
 
-    if(root == NULL){
-        return new Node(score);
+    if (root == NULL) {
+        return new Node(score, name);
     }
 
-    if(score < root->score){
-        root->left = insert(root->left, score);
+    if (score < root->score) {
+        root->left = insert(root->left, score, name);
     }
-    else{
-        root->right = insert(root->right, score);
+    else {
+        root->right = insert(root->right, score, name);
     }
 
     return root;
 }
 
 Node* Tree::successor(Node* root) {
-    if(root==NULL){
+    if (root == NULL) {
         return NULL;
     }
     Node* node = root;
-    while(node->left != NULL){
+    while (node->left != NULL) {
         node = node->left;
     }
     return node;
 }
 
 Node* Tree::deleteScore(Node* root, int score) {
-    if(root == NULL){
+    if (root == NULL) {
         return root;
     }
 
-    if(score < root->score ){
+    if (score < root->score) {
         root->left = deleteScore(root->left, score);
     }
 
-    else if(score > root->score){
+    else if (score > root->score) {
         root->right = deleteScore(root->right, score);
     }
 
-    else{
-        if(root->left == NULL && root->right == NULL) {
+    else {
+        if (root->left == NULL && root->right == NULL) {
             Node* node = nullptr;
             return node;
         }
-        if(root->left == NULL){
+        if (root->left == NULL) {
             Node* node = root->right;
             delete root;
             return node;
         }
-        if(root->right == NULL){
+        if (root->right == NULL) {
             Node* node = root->left;
             delete root;
             return node;
@@ -168,15 +178,15 @@ Node* Tree::deleteScore(Node* root, int score) {
     return root;
 }
 
-Node* Tree::findMaxScore(Node* root){
+Node* Tree::findMaxScore(Node* root) {
 
-    if(root == NULL){
+    if (root == NULL) {
         return NULL;
     }
-    else{
+    else {
         findMaxScore(root->right);
-        if(index++ < 10){
-            cout << root->score << " ";
+        if (index++ < 10) {
+            cout << root->name << " " << root->score << endl;
         }
         findMaxScore(root->left);
     }
@@ -187,9 +197,9 @@ class Songs
 public:
     Songs();
     Songs(
-            float& _acousticness, string& _artist, float& _dancability, int& _duration , float& _energy, int& _explct,
-            string& _id, float instrumentalness, int& _key, float& _liveness, float& _loudness, int& _mode, /*string& _name*/
-            int& _popularity, string release_date, float& _speechiness, float& _tempo, float& _valence, int& _year);
+        float& _acousticness, string& _artist, float& _dancability, int& _duration, float& _energy, int& _explct,
+        string& _id, float instrumentalness, int& _key, float& _liveness, float& _loudness, int& _mode, /*string& _name*/
+        int& _popularity, string release_date, float& _speechiness, float& _tempo, float& _valence, int& _year);
     float GetAcousticness();
     string GetArtist();
     float GetDancability();
@@ -255,9 +265,9 @@ Songs::Songs()
     year = 0;
 }
 Songs::Songs(
-        float& _acousticness, string& _artist, float& _dancability, int& _duration, float& _energy, int& _explct,
-        string& _id, float _instrumentalness, int& _key, float& _liveness, float& _loudness, int& _mode, /*string& _name*/
-        int& _popularity, string _release_date, float& _speechiness, float& _tempo, float& _valence, int& _year)
+    float& _acousticness, string& _artist, float& _dancability, int& _duration, float& _energy, int& _explct,
+    string& _id, float _instrumentalness, int& _key, float& _liveness, float& _loudness, int& _mode, /*string& _name*/
+    int& _popularity, string _release_date, float& _speechiness, float& _tempo, float& _valence, int& _year)
 {
     acousticness = _acousticness;
     artist = _artist;
@@ -430,6 +440,10 @@ void GetCSVData(string& filePath, map<string, Songs>& songs, map<string, int>& s
 
             if (i != 0)
             {
+                /*if (name == "Taro Yard Slaughter House")
+                {
+                    cout << "stop" << endl;
+                }*/
                 acousticness = stof(tempAcousticness);
                 dancability = stof(tempDancability);
                 duration = stoi(tempDuration);
@@ -446,15 +460,17 @@ void GetCSVData(string& filePath, map<string, Songs>& songs, map<string, int>& s
                 valence = stof(tempValence);
                 year = stoi(tempYear);
 
+                //cout << name << endl;
                 Songs s(
-                        acousticness, artist, dancability, duration, energy, explct, id, instrumentalness, key, liveness,
-                        loudness, mode, popularity, release_date, speechiness, tempo, valence, year);
+                    acousticness, artist, dancability, duration, energy, explct, id, instrumentalness, key, liveness,
+                    loudness, mode, popularity, release_date, speechiness, tempo, valence, year);
 
                 songs.emplace(name, s);
+                //cout << name << endl;
                 scores.emplace(name, 0);
             }
 
-
+            i++;
         }
     }
     else
@@ -462,17 +478,18 @@ void GetCSVData(string& filePath, map<string, Songs>& songs, map<string, int>& s
         cout << "file not found" << endl;
     }
 }
-void applyScores(map<string, Songs> songs, map<string, int> scores, string chosenSong)
+void applyScores(map<string, Songs>& songs, map<string, int>& scores, string chosenSong)
 {
     map<string, Songs>::iterator songIt;
     map<string, int>::iterator scoresIt;
     map<string, Songs>::iterator it;
 
     songIt = songs.find(chosenSong);
-    scoresIt = scores.find(chosenSong);
+    
 
     for (it = songs.begin(); it != songs.end(); it++)
     {
+        scoresIt = scores.find(it->first);
         if (it->second.GetAcousticness() - songIt->second.GetAcousticness() < .01)
             scoresIt->second = scoresIt->second + 1;
 
@@ -520,55 +537,72 @@ void applyScores(map<string, Songs> songs, map<string, int> scores, string chose
 
         if (it->second.GetYear() == songIt->second.GetYear())
             scoresIt->second = scoresIt->second + 1;
+
+        //cout << "Song: " <<scoresIt->first << " " << "Score: " <<scoresIt->second << endl;
     }
 }
-
 void MakeHeap(map<string, int>& scores, MaxHeap& mh)
 {
-    
+
     map<string, int>::iterator it;
     for (it = scores.begin(); it != scores.end(); it++)
     {
         mh.push(make_pair(it->first, it->second));
     }
 }
-void TopSongs(MaxHeap& mh, map<string, Songs>& songs, int listSize)
+vector<pair<string, Songs>> TopSongs(MaxHeap& mh, map<string, Songs>& songs, int listSize)
 {
     map<string, Songs>::iterator it;
-    queue<pair<string,Songs>> q;
+    vector<pair<string, Songs>> playlist;
     string top = mh.top();
-    int left;
-    int right;
-    int index = 0;
-    it = songs.find(top);
-    q.push(make_pair(it->first, it->second));
-    pair<string, Songs> currentSong = q.front();
     int i = 1;
-    while (!q.empty() || i != listSize)
+    
+    
+   
+    //q.push(make_pair(it->first, it->second));
+    //pair<string, Songs> currentSong = q.front();
+    
+    while ( i < listSize + 1)
     {
-        q.pop();
-        cout << currentSong.first << endl;
-        currentSong = q.front();
+        //q.pop();
+        //cout << currentSong.first << endl;
+        //currentSong = q.front();
         
+        it = songs.find(mh.at(i));
         i++;
-        left = 2 * index + 1;
-        it = songs.find(mh.at(left));
-        q.push(make_pair(it->first, it->second));
-        
-        i++;
-        right = 2 * index + 2;
-        it = songs.find(mh.at(right));
-        q.push(make_pair(it->first, it->second));
+        playlist.push_back(make_pair(it->first, it->second));
 
+        //cout << it->first << endl;
+
+        it = songs.find(mh.at(i));
+        i++;
+        playlist.push_back(make_pair(it->first, it->second));
         
+        //cout << it->first << endl;
+        
+
+
     }
-        
 
-          
-    
-    
 
+
+
+
+    return playlist;
 }
+void insertScoresInTree(Node* root, Tree tree, map<string, int> scores)
+{
+    map<string, int>::iterator it;
+
+    for (it = scores.begin(); it != scores.end(); it++)
+    {
+        root = tree.insert(root, it->second, it->first );
+    }
+
+
+    
+}
+
 
 int main()
 {
@@ -577,7 +611,9 @@ int main()
     filePath = "data.csv";
     string chosenSong;
     int listSize = 10;
-    
+    Node* root = NULL;
+    Tree tree;
+
     map<string, Songs> songs;
     map<string, int> scores;
     int number;
@@ -586,37 +622,37 @@ int main()
     cout << "Enter number 1-10 for example playlist" << endl;
     cin >> number;
 
-    switch(number){
-        case 1:
-            chosenSong = "Keep A Song In Your Soul";
-            break;
-        case 2:
-            chosenSong = "I Put A Spell On You";
-            break;
-        case 3:
-            chosenSong = "#NOHOOK";
-            break;
-        case 4:
-            chosenSong = "Chicago Breakdown";
-            break;
-        case 5:
-            chosenSong = "90210 (feat. Kacy Hill)";
-            break;
-        case 6:
-            chosenSong = "Devil Town";
-            break;
-        case 7:
-            chosenSong = "Fire on the Mountain - Live at Soldier Field, Chicago, IL 7/3/2015";
-            break;
-        case 8:
-            chosenSong = "Trouble";
-            break;
-        case 9:
-            chosenSong = "Ease My Mind";
-            break;
-        case 10:
-            chosenSong = "Best Friend";
-            break;
+    switch (number) {
+    case 1:
+        chosenSong = "Keep A Song In Your Soul";
+        break;
+    case 2:
+        chosenSong = "I Put A Spell On You";
+        break;
+    case 3:
+        chosenSong = "#NOHOOK";
+        break;
+    case 4:
+        chosenSong = "Chicago Breakdown";
+        break;
+    case 5:
+        chosenSong = "90210 (feat. Kacy Hill)";
+        break;
+    case 6:
+        chosenSong = "Devil Town";
+        break;
+    case 7:
+        chosenSong = "Fire on the Mountain - Live at Soldier Field, Chicago, IL 7/3/2015";
+        break;
+    case 8:
+        chosenSong = "Trouble";
+        break;
+    case 9:
+        chosenSong = "Ease My Mind";
+        break;
+    case 10:
+        chosenSong = "Best Friend";
+        break;
     }
 
 
@@ -624,6 +660,8 @@ int main()
     GetCSVData(filePath, songs, scores);
     applyScores(songs, scores, chosenSong);
     MakeHeap(scores, mh);
-    TopSongs(mh, songs, listSize);
+    vector<pair<string, Songs>> playlist = TopSongs(mh, songs, listSize);
+    insertScoresInTree(root, tree, scores);
+    tree.findMaxScore(root);
 
 }
