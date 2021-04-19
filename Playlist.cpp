@@ -139,6 +139,7 @@ Node* Tree::insert(Node* root, int score, string name) {
         return new Node(score, name);
     }
 
+
     if (score < root->score) {
         root->left = insert(root->left, score, name);
     }
@@ -255,18 +256,20 @@ Node* Tree::balanceTree(Node* root) {
 
 }
 Node* Tree::rotateLeft(Node* root) {
-    Node* temp = root->right;
-    root->right = temp->left;
-    temp->left = root;
-
-    return temp;
+    Node* oldRoot = root;
+    Node* newParent = root->right;
+    Node* newGrandchild = newParent->left;
+    newParent->left = oldRoot;
+    oldRoot->right = newGrandchild;
+    return newParent;
 }
 Node* Tree::rotateRight(Node* root) {
-    Node* temp = root->left;
-    root->left = temp->right;
-    temp->right = root;
-
-    return temp;
+    Node* oldRoot = root;
+    Node* newParent = root->left;
+    Node* newGrandchild = newParent->right;
+    newParent->right = oldRoot;
+    oldRoot->left = newGrandchild;
+    return newParent;
 }
 Node* Tree::rotateLeftRight(Node* root) {
     Node* temp = root->left;
@@ -299,9 +302,9 @@ class Songs
 public:
     Songs();
     Songs(
-        float& _acousticness, string& _artist, float& _dancability, int& _duration, float& _energy, int& _explct,
-        string& _id, float instrumentalness, int& _key, float& _liveness, float& _loudness, int& _mode, /*string& _name*/
-        int& _popularity, string release_date, float& _speechiness, float& _tempo, float& _valence, int& _year);
+            float& _acousticness, string& _artist, float& _dancability, int& _duration, float& _energy, int& _explct,
+            string& _id, float instrumentalness, int& _key, float& _liveness, float& _loudness, int& _mode, /*string& _name*/
+            int& _popularity, string release_date, float& _speechiness, float& _tempo, float& _valence, int& _year);
     float GetAcousticness();
     string GetArtist();
     float GetDancability();
@@ -367,9 +370,9 @@ Songs::Songs()
     year = 0;
 }
 Songs::Songs(
-    float& _acousticness, string& _artist, float& _dancability, int& _duration, float& _energy, int& _explct,
-    string& _id, float _instrumentalness, int& _key, float& _liveness, float& _loudness, int& _mode, /*string& _name*/
-    int& _popularity, string _release_date, float& _speechiness, float& _tempo, float& _valence, int& _year)
+        float& _acousticness, string& _artist, float& _dancability, int& _duration, float& _energy, int& _explct,
+        string& _id, float _instrumentalness, int& _key, float& _liveness, float& _loudness, int& _mode, /*string& _name*/
+        int& _popularity, string _release_date, float& _speechiness, float& _tempo, float& _valence, int& _year)
 {
     acousticness = _acousticness;
     artist = _artist;
@@ -470,7 +473,9 @@ int Songs::GetYear()
 
 void GetCSVData(string& filePath, map<string, Songs>& songs, map<string, int>& scores)
 {
-    ifstream inFile(filePath);
+    fstream inFile("data.csv");
+    cout << filePath;
+
     if (inFile.is_open())
     {
         string lineFromFile;
@@ -531,7 +536,9 @@ void GetCSVData(string& filePath, map<string, Songs>& songs, map<string, int>& s
             getline(stream, tempLoudness, ',');
             getline(stream, tempMode, ',');
             getline(stream, name, ',');
+
             getline(stream, tempPopularity, ',');
+
             getline(stream, release_date, ',');
             getline(stream, tempSpeechiness, ',');
             getline(stream, tempTempo, ',');
@@ -564,8 +571,8 @@ void GetCSVData(string& filePath, map<string, Songs>& songs, map<string, int>& s
 
                 //cout << name << endl;
                 Songs s(
-                    acousticness, artist, dancability, duration, energy, explct, id, instrumentalness, key, liveness,
-                    loudness, mode, popularity, release_date, speechiness, tempo, valence, year);
+                        acousticness, artist, dancability, duration, energy, explct, id, instrumentalness, key, liveness,
+                        loudness, mode, popularity, release_date, speechiness, tempo, valence, year);
 
                 songs.emplace(name, s);
                 //cout << name << endl;
@@ -685,11 +692,6 @@ vector<pair<string, Songs>> TopSongs(MaxHeap& mh, map<string, Songs>& songs, int
 
 
     }
-
-
-
-
-
     return playlist;
 }
 void insertScoresInTree(Node* root, Tree tree, map<string, int> scores)
@@ -698,17 +700,11 @@ void insertScoresInTree(Node* root, Tree tree, map<string, int> scores)
 
     for (it = scores.begin(); it != scores.end(); it++)
     {
-        cout << "Size: " << tree.size(root) << endl;
+        //cout << "Size: " << tree.size(root) << endl;
         root = tree.insert(root, it->second, it->first);
-        tree.balanceTree(root);
-        
+        root = tree.balanceTree(root);
     }
-
-
-
 }
-
-
 int main()
 {
     MaxHeap mh;
@@ -728,39 +724,37 @@ int main()
     cin >> number;
 
     switch (number) {
-    case 1:
-        chosenSong = "Keep A Song In Your Soul";
-        break;
-    case 2:
-        chosenSong = "I Put A Spell On You";
-        break;
-    case 3:
-        chosenSong = "#NOHOOK";
-        break;
-    case 4:
-        chosenSong = "Chicago Breakdown";
-        break;
-    case 5:
-        chosenSong = "90210 (feat. Kacy Hill)";
-        break;
-    case 6:
-        chosenSong = "Devil Town";
-        break;
-    case 7:
-        chosenSong = "Fire on the Mountain - Live at Soldier Field, Chicago, IL 7/3/2015";
-        break;
-    case 8:
-        chosenSong = "Trouble";
-        break;
-    case 9:
-        chosenSong = "Ease My Mind";
-        break;
-    case 10:
-        chosenSong = "Best Friend";
-        break;
+        case 1:
+            chosenSong = "Keep A Song In Your Soul";
+            break;
+        case 2:
+            chosenSong = "I Put A Spell On You";
+            break;
+        case 3:
+            chosenSong = "#NOHOOK";
+            break;
+        case 4:
+            chosenSong = "Chicago Breakdown";
+            break;
+        case 5:
+            chosenSong = "90210 (feat. Kacy Hill)";
+            break;
+        case 6:
+            chosenSong = "Devil Town";
+            break;
+        case 7:
+            chosenSong = "Fire on the Mountain - Live at Soldier Field, Chicago, IL 7/3/2015";
+            break;
+        case 8:
+            chosenSong = "Trouble";
+            break;
+        case 9:
+            chosenSong = "Ease My Mind";
+            break;
+        case 10:
+            chosenSong = "Best Friend";
+            break;
     }
-
-
 
     GetCSVData(filePath, songs, scores);
     applyScores(songs, scores, chosenSong);
@@ -768,5 +762,4 @@ int main()
     //vector<pair<string, Songs>> playlist = TopSongs(mh, songs, listSize);
     insertScoresInTree(root, tree, scores);
     tree.findMaxScore(root);
-
 }
