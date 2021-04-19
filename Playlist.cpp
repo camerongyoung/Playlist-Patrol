@@ -83,22 +83,22 @@ public:
     int score;
     string name;
 
-    Node* left;
-    Node* right;
+    Node *left;
+    Node *right;
 
-    Node() {
+    Node(){
         name = "";
         score = 0;
         left = NULL;
         right = NULL;
     };
-    Node(int _score, string _name) {
+    Node(int _score, string _name){
         name = _name;
         score = _score;
         left = NULL;
         right = NULL;
     };
-    Node(int _score, string _name, Node* _left, Node* _right) {
+    Node(int _score, string _name, Node* _left, Node* _right){
         name = _name;
         score = _score;
         left = _left;
@@ -114,18 +114,28 @@ public:
     Node* successor(Node* root);
     Node* deleteScore(Node* root, int score);
     Node* findMaxScore(Node* root);
+    int balanceFactor(Node* root);
+    int findHeight(Node* root);
+    Node* balanceTree(Node* root);
+    Node* rotateLeft(Node* root);
+    Node* rotateRight(Node* root);
+    Node* rotateLeftRight(Node* root);
+    Node* rotateRightLeft(Node *root);
+    bool isAVL(Node* root);
+
+
 };
 
 Node* Tree::insert(Node* root, int score, string name) {
 
-    if (root == NULL) {
+    if(root == NULL){
         return new Node(score, name);
     }
 
-    if (score < root->score) {
+    if(score < root->score){
         root->left = insert(root->left, score, name);
     }
-    else {
+    else{
         root->right = insert(root->right, score, name);
     }
 
@@ -133,40 +143,40 @@ Node* Tree::insert(Node* root, int score, string name) {
 }
 
 Node* Tree::successor(Node* root) {
-    if (root == NULL) {
+    if(root==NULL){
         return NULL;
     }
     Node* node = root;
-    while (node->left != NULL) {
+    while(node->left != NULL){
         node = node->left;
     }
     return node;
 }
 
 Node* Tree::deleteScore(Node* root, int score) {
-    if (root == NULL) {
+    if(root == NULL){
         return root;
     }
 
-    if (score < root->score) {
+    if(score < root->score ){
         root->left = deleteScore(root->left, score);
     }
 
-    else if (score > root->score) {
+    else if(score > root->score){
         root->right = deleteScore(root->right, score);
     }
 
-    else {
-        if (root->left == NULL && root->right == NULL) {
+    else{
+        if(root->left == NULL && root->right == NULL) {
             Node* node = nullptr;
             return node;
         }
-        if (root->left == NULL) {
+        if(root->left == NULL){
             Node* node = root->right;
             delete root;
             return node;
         }
-        if (root->right == NULL) {
+        if(root->right == NULL){
             Node* node = root->left;
             delete root;
             return node;
@@ -178,18 +188,107 @@ Node* Tree::deleteScore(Node* root, int score) {
     return root;
 }
 
-Node* Tree::findMaxScore(Node* root) {
+Node* Tree::findMaxScore(Node* root){
 
-    if (root == NULL) {
+    if(root == NULL){
         return NULL;
     }
-    else {
+    else{
         findMaxScore(root->right);
-        if (index++ < 10) {
-            cout << root->name << " " << root->score << endl;
+        if(index++ < 10){
+            cout << root->score << " ";
         }
         findMaxScore(root->left);
     }
+}
+
+int Tree::balanceFactor(Node* root) {
+    int leftHeight = findHeight(root->left);
+    int rightHeight = findHeight(root->right);
+    int balanceFactor = leftHeight - rightHeight;
+
+    return balanceFactor;
+
+}
+
+int Tree::findHeight(Node* root){
+    //return 0 if there are no nodes
+    if(root == NULL)
+        return 0;
+
+    if(findHeight(root->left) >= findHeight(root->right)){
+        return findHeight(root->left) + 1;
+    }
+    else{
+        return findHeight(root->right) + 1;
+    }
+
+}
+
+Node* Tree::balanceTree(Node* root) {
+    int BF = balanceFactor(root);
+
+    if(BF > 1){
+        if(balanceFactor(root->left) > 0){
+            root = rotateRight(root);
+        }
+        else{
+            root = rotateLeftRight(root);
+        }
+    }
+    else if(BF < -1) {
+        if(balanceFactor(root->right) > 0){
+            root = rotateRightLeft(root);
+        }
+        else{
+            root = rotateLeft(root);
+        }
+    }
+    return root;
+
+}
+Node * Tree::rotateLeft(Node* root) {
+    Node* temp = root->right;
+    root->right = temp->left;
+    temp->left = root;
+
+    return temp;
+}
+
+Node * Tree::rotateRight(Node* root) {
+    Node* temp = root->left;
+    root->left = temp->right;
+    temp->right = root;
+
+    return temp;
+}
+
+Node* Tree::rotateLeftRight(Node* root) {
+    Node* temp = root->left;
+    root->left = rotateLeft(temp);
+    return rotateRight(root);
+}
+
+Node * Tree::rotateRightLeft(Node *root) {
+    Node* temp = root->right;
+    root->right = rotateRight(temp);
+    return rotateLeft(root);
+}
+
+bool Tree::isAVL(Node* root) {
+    int leftHeight;
+    int rightHeight;
+    if(root == NULL){
+        return true;
+    }
+
+    leftHeight = findHeight(root->left);
+    rightHeight = findHeight(root->right);
+
+    if(abs(leftHeight-rightHeight) <= 1 && isAVL(root->left) && isAVL(root->right)){
+        return true;
+    }
+    return false;
 }
 
 class Songs
