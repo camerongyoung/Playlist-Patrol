@@ -8,9 +8,131 @@
 #include <string>
 #include <sstream>
 #include <ostream>
+#include <list>
 using namespace std;
 
 #include <iostream>
+class Node
+{
+public:
+    int score;
+    string name;
+    list<string> names;
+    Node* left;
+    Node* right;
+    int height;
+};
+Node* newNode(int score, string name)
+{
+    Node* currentNode = new Node();
+    currentNode = currentNode;
+    currentNode->score = score;
+    /*currentNode->name = name;*/
+    currentNode->names.push_back(name);
+    currentNode->height = 1;
+    
+    //cout << "successful" << endl;
+
+    return currentNode;
+}
+int height(Node* node)
+{
+    if (node == NULL)
+        return 0;
+    return node->height;
+}
+Node* rotateRight(Node* node)
+{
+    Node* newRoot = node->left;
+    Node* swingNode = newRoot->right;
+
+    newRoot->right = node;
+    node->left = swingNode;
+
+    node->height = max(height(node->left), height(node->right)) + 1;
+    newRoot->height = max(height(newRoot->left), height(newRoot->right)) + 1;
+    return newRoot;
+}
+Node* rotateLeft(Node* node)
+{
+    //your code here
+    Node* newRoot = node->right;
+    Node* swingNode = newRoot->left;
+
+    newRoot->left = node;
+    node->right = swingNode;
+
+    node->height = max(height(node->left), height(node->right)) + 1;
+    newRoot->height = max(height(newRoot->left), height(newRoot->right)) + 1;
+
+    return newRoot;
+}
+int max(int left, int right)
+{
+    if (left > right)
+        return left;
+    else
+        return right;
+}
+int getBalance(Node* node)
+{
+    if (node == NULL)
+    {
+        return 0;
+    }
+    return height(node->left) - height(node->right);
+}
+Node* insert(Node* root, int score, string name)
+{
+
+    if (root == NULL)
+    {
+        return newNode(score, name);
+    }
+
+    if (score < root->score)
+        root->left = insert(root->left, score, name);
+    else if (score > root->score)
+        root->right = insert(root->right, score, name);
+    else if (score == root->score)
+    {
+        root->names.push_back(name);
+    }
+    else
+        return root;
+
+    root->height = 1 + max(height(root->left), height(root->right));
+
+    int balance = getBalance(root);
+
+    //Left Left
+    if (balance > 1 && score < root->left->score)
+    {
+        return rotateRight(root);
+    }
+
+    // Right Right
+    if (balance < -1 && score > root->right->score)
+    {
+        return rotateLeft(root);
+    }
+
+    //Left Right
+    if (balance > 1 && score > root->left->score)
+    {
+        root->left = rotateLeft(root->left);
+        return rotateRight(root);
+    }
+
+    if (balance < -1 && score < root->right->score)
+    {
+        root->right = rotateRight(root->right);
+        return rotateLeft(root);
+    }
+
+    return root;
+}
+
 struct MaxHeap
 {
 private:
@@ -78,222 +200,6 @@ public:
 
 
 };
-class Node {
-public:
-    int score;
-    string name;
-
-    Node* left;
-    Node* right;
-
-    Node() {
-        name = "";
-        score = 0;
-        left = NULL;
-        right = NULL;
-    };
-    Node(int _score, string _name) {
-        name = _name;
-        score = _score;
-        left = NULL;
-        right = NULL;
-    };
-    Node(int _score, string _name, Node* _left, Node* _right) {
-        name = _name;
-        score = _score;
-        left = _left;
-        right = _right;
-    };
-};
-
-class Tree {
-private:
-    int index = 0;
-public:
-    Node* insert(Node* root, int score, string name);
-    Node* successor(Node* root);
-    Node* deleteScore(Node* root, int score);
-    Node* findMaxScore(Node* root);
-    int balanceFactor(Node* root);
-    int findHeight(Node* root);
-    Node* balanceTree(Node* root);
-    Node* rotateLeft(Node* root);
-    Node* rotateRight(Node* root);
-    Node* rotateLeftRight(Node* root);
-    Node* rotateRightLeft(Node* root);
-    bool isAVL(Node* root);
-    int size(Node* root);
-
-};
-
-int Tree::size(Node* root)
-{
-    if (root == NULL)
-        return 0;
-    else
-        return(size(root->left) + 1 + size(root->right));
-}
-Node* Tree::insert(Node* root, int score, string name) {
-
-    if (root == NULL) {
-        return new Node(score, name);
-    }
-
-    if (score < root->score) {
-        root->left = insert(root->left, score, name);
-    }
-    else {
-        root->right = insert(root->right, score, name);
-    }
-
-    return root;
-}
-
-Node* Tree::successor(Node* root) {
-    if (root == NULL) {
-        return NULL;
-    }
-    Node* node = root;
-    while (node->left != NULL) {
-        node = node->left;
-    }
-    return node;
-}
-
-Node* Tree::deleteScore(Node* root, int score) {
-    if (root == NULL) {
-        return root;
-    }
-
-    if (score < root->score) {
-        root->left = deleteScore(root->left, score);
-    }
-
-    else if (score > root->score) {
-        root->right = deleteScore(root->right, score);
-    }
-
-    else {
-        if (root->left == NULL && root->right == NULL) {
-            Node* node = nullptr;
-            return node;
-        }
-        if (root->left == NULL) {
-            Node* node = root->right;
-            delete root;
-            return node;
-        }
-        if (root->right == NULL) {
-            Node* node = root->left;
-            delete root;
-            return node;
-        }
-        Node* temp = successor(root->right);
-        root->score = temp->score;
-        root->right = deleteScore(root->right, temp->score);
-    }
-    return root;
-}
-
-Node* Tree::findMaxScore(Node* root) {
-
-    if (root == NULL) {
-        return NULL;
-    }
-    else {
-        findMaxScore(root->right);
-        if (index++ < 10) {
-            cout << root->score << " ";
-        }
-        findMaxScore(root->left);
-    }
-}
-
-int Tree::balanceFactor(Node* root) {
-    int leftHeight = findHeight(root->left);
-    int rightHeight = findHeight(root->right);
-    int balanceFactor = leftHeight - rightHeight;
-
-    return balanceFactor;
-
-}
-
-int Tree::findHeight(Node* root) {
-    //return 0 if there are no nodes
-    if (root == NULL)
-        return 0;
-
-    if (findHeight(root->left) >= findHeight(root->right)) {
-        return findHeight(root->left) + 1;
-    }
-    else {
-        return findHeight(root->right) + 1;
-    }
-
-}
-
-Node* Tree::balanceTree(Node* root) {
-    int BF = balanceFactor(root);
-
-    if (BF > 1) {
-        if (balanceFactor(root->left) > 0) {
-            root = rotateRight(root);
-        }
-        else {
-            root = rotateLeftRight(root);
-        }
-    }
-    else if (BF < -1) {
-        if (balanceFactor(root->right) > 0) {
-            root = rotateRightLeft(root);
-        }
-        else {
-            root = rotateLeft(root);
-        }
-    }
-    return root;
-
-}
-Node* Tree::rotateLeft(Node* root) {
-    Node* temp = root->right;
-    root->right = temp->left;
-    temp->left = root;
-
-    return temp;
-}
-Node* Tree::rotateRight(Node* root) {
-    Node* temp = root->left;
-    root->left = temp->right;
-    temp->right = root;
-
-    return temp;
-}
-Node* Tree::rotateLeftRight(Node* root) {
-    Node* temp = root->left;
-    root->left = rotateLeft(temp);
-    return rotateRight(root);
-}
-Node* Tree::rotateRightLeft(Node* root) {
-    Node* temp = root->right;
-    root->right = rotateRight(temp);
-    return rotateLeft(root);
-}
-bool Tree::isAVL(Node* root) {
-    int leftHeight;
-    int rightHeight;
-    if (root == NULL) {
-        return true;
-    }
-
-    leftHeight = findHeight(root->left);
-    rightHeight = findHeight(root->right);
-
-    if (abs(leftHeight - rightHeight) <= 1 && isAVL(root->left) && isAVL(root->right)) {
-        return true;
-    }
-    return false;
-}
-
 class Songs
 {
 public:
@@ -470,7 +376,9 @@ int Songs::GetYear()
 
 void GetCSVData(string& filePath, map<string, Songs>& songs, map<string, int>& scores)
 {
-    ifstream inFile(filePath);
+    fstream inFile("data.csv");
+    //cout << filePath;
+
     if (inFile.is_open())
     {
         string lineFromFile;
@@ -531,7 +439,9 @@ void GetCSVData(string& filePath, map<string, Songs>& songs, map<string, int>& s
             getline(stream, tempLoudness, ',');
             getline(stream, tempMode, ',');
             getline(stream, name, ',');
+
             getline(stream, tempPopularity, ',');
+
             getline(stream, release_date, ',');
             getline(stream, tempSpeechiness, ',');
             getline(stream, tempTempo, ',');
@@ -685,30 +595,20 @@ vector<pair<string, Songs>> TopSongs(MaxHeap& mh, map<string, Songs>& songs, int
 
 
     }
-
-
-
-
-
     return playlist;
 }
-void insertScoresInTree(Node* root, Tree tree, map<string, int> scores)
+Node* insertScoresInTree(Node* root, map<string, int> scores)
 {
     map<string, int>::iterator it;
 
     for (it = scores.begin(); it != scores.end(); it++)
     {
-        cout << "Size: " << tree.size(root) << endl;
-        root = tree.insert(root, it->second, it->first);
-        tree.balanceTree(root);
+        //cout << "Size: " << tree.size(root) << endl;
+        root = insert(root, it->second, it->first);
         
     }
-
-
-
+    return root;
 }
-
-
 int main()
 {
     MaxHeap mh;
@@ -717,7 +617,7 @@ int main()
     string chosenSong;
     int listSize = 10;
     Node* root = NULL;
-    Tree tree;
+    
 
     map<string, Songs> songs;
     map<string, int> scores;
@@ -760,13 +660,11 @@ int main()
         break;
     }
 
-
-
     GetCSVData(filePath, songs, scores);
     applyScores(songs, scores, chosenSong);
     //MakeHeap(scores, mh);
     //vector<pair<string, Songs>> playlist = TopSongs(mh, songs, listSize);
-    insertScoresInTree(root, tree, scores);
-    tree.findMaxScore(root);
-
+   
+    root = insertScoresInTree(root, scores);
+    cout << "insert done: " << endl;
 }
