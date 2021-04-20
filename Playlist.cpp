@@ -110,6 +110,7 @@ class Tree {
 private:
     int index = 0;
 public:
+    void insertScoresInTree(Node* root, map<string, int> scores);
     Node* insert(Node* root, int score, string name);
     Node* successor(Node* root);
     Node* deleteScore(Node* root, int score);
@@ -125,6 +126,24 @@ public:
     int size(Node* root);
 
 };
+
+void Tree::insertScoresInTree(Node* root, map<string, int> scores)
+{
+    int i = 0;
+    map<string, int>::iterator it;
+
+    for (it = scores.begin(); it != scores.end(); it++)
+    {
+        if(i % 10000 == 0){
+            cout << "Size: " << size(root) << endl;
+        }
+
+        //cout << "Size: " << tree.size(root) << endl;
+        root = insert(root, it->second, it->first);
+        //root = balanceTree(root);
+        i++;
+    }
+}
 
 int Tree::size(Node* root)
 {
@@ -146,6 +165,25 @@ Node* Tree::insert(Node* root, int score, string name) {
     else {
         root->right = insert(root->right, score, name);
     }
+
+    /*int BF = balanceFactor(root);
+
+    if (BF > 1) {
+        if (balanceFactor(root->left) > 0) {
+            return rotateRight(root);
+        }
+        else {
+            return rotateLeftRight(root);
+        }
+    }
+    else if (BF < -1) {
+        if (balanceFactor(root->right) > 0) {
+            return rotateRightLeft(root);
+        }
+        else {
+            return rotateLeft(root);
+        }
+    }*/
 
     return root;
 }
@@ -198,7 +236,7 @@ Node* Tree::deleteScore(Node* root, int score) {
 
 Node* Tree::findMaxScore(Node* root) {
 
-    if (root == NULL) {
+    if (root == NULL || index == 10) {
         return NULL;
     }
     else {
@@ -474,7 +512,6 @@ int Songs::GetYear()
 void GetCSVData(string& filePath, map<string, Songs>& songs, map<string, int>& scores)
 {
     fstream inFile("data.csv");
-    cout << filePath;
 
     if (inFile.is_open())
     {
@@ -694,17 +731,6 @@ vector<pair<string, Songs>> TopSongs(MaxHeap& mh, map<string, Songs>& songs, int
     }
     return playlist;
 }
-void insertScoresInTree(Node* root, Tree tree, map<string, int> scores)
-{
-    map<string, int>::iterator it;
-
-    for (it = scores.begin(); it != scores.end(); it++)
-    {
-        //cout << "Size: " << tree.size(root) << endl;
-        root = tree.insert(root, it->second, it->first);
-        root = tree.balanceTree(root);
-    }
-}
 int main()
 {
     MaxHeap mh;
@@ -760,6 +786,9 @@ int main()
     applyScores(songs, scores, chosenSong);
     //MakeHeap(scores, mh);
     //vector<pair<string, Songs>> playlist = TopSongs(mh, songs, listSize);
-    insertScoresInTree(root, tree, scores);
+    tree.insertScoresInTree(root, scores);
+    tree.balanceTree(root);
+    cout << tree.isAVL(root);
     tree.findMaxScore(root);
+
 }
