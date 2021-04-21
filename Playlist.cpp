@@ -7,7 +7,6 @@
 #include <ostream>
 #include <list>
 
-
 using namespace std;
 
 #include <chrono>
@@ -529,8 +528,7 @@ void applyScores(map<string, Songs>& songs, map<string, int>& scores, string cho
     map<string, Songs>::iterator it;
 
     songIt = songs.find(chosenSong);
-
-
+    
     for (it = songs.begin(); it != songs.end(); it++)
     {
         scoresIt = scores.find(it->first);
@@ -581,8 +579,6 @@ void applyScores(map<string, Songs>& songs, map<string, int>& scores, string cho
 
         if (it->second.GetYear() == songIt->second.GetYear())
             scoresIt->second = scoresIt->second + 1;
-
-        //cout << "Song: " <<scoresIt->first << " " << "Score: " <<scoresIt->second << endl;
     }
 }
 void MakeHeap(map<string, int>& scores, MaxHeap& mh)
@@ -600,32 +596,16 @@ vector<pair<string, Songs>> TopSongs(MaxHeap& mh, map<string, Songs>& songs, int
     vector<pair<string, Songs>> playlist;
     string top = mh.top();
     int i = 1;
-
-
-
-    //q.push(make_pair(it->first, it->second));
-    //pair<string, Songs> currentSong = q.front();
-
+    
     while (i < listSize + 1)
     {
-        //q.pop();
-        //cout << currentSong.first << endl;
-        //currentSong = q.front();
-
         it = songs.find(mh.at(i));
         i++;
         playlist.push_back(make_pair(it->first, it->second));
 
-        //cout << it->first << endl;
-
         it = songs.find(mh.at(i));
         i++;
         playlist.push_back(make_pair(it->first, it->second));
-
-        //cout << it->first << endl;
-
-
-
     }
     return playlist;
 }
@@ -644,9 +624,7 @@ Node* insertScoresInTree(Node* root, map<string, int> scores)
 
     for (it = scores.begin(); it != scores.end(); it++)
     {
-        //cout << "Size: " << tree.size(root) << endl;
         root = insert(root, it->second, it->first);
-
     }
     return root;
 }
